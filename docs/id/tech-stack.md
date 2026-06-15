@@ -22,7 +22,7 @@ Halaman ini menjelaskan stack teknologi tingkat tinggi yang saat ini dipakai ole
 3. Setelah pengguna dikenali, Tuttofy membaca atau membuat profile internal dan data produk terkait di Neon.
 4. Jika pengguna mengakses materi pembelajaran atau aset yang diunggah, Tuttofy menggunakan Cloudflare R2 sebagai object storage.
 5. Jika produk perlu mengirim email transaksional atau notifikasi internal seperti pemberitahuan teacher onboarding baru, Tuttofy menggunakan Resend sebagai email sender.
-6. Jika alur produk memerlukan pembayaran atau transaksi berlangganan di fase aktifnya, Tuttofy menggunakan Stripe sebagai payment provider.
+6. Jika alur produk memerlukan pembayaran, subscription, teacher wallet, atau payout teacher, Tuttofy menggunakan Stripe sebagai payment provider dan Stripe Connect sebagai fondasi connected account.
 7. Jika produk membutuhkan cache, throttling, atau koordinasi data yang cepat dan ringan, Tuttofy menggunakan Upstash Redis.
 8. Setelah teacher disetujui dan mulai membuat avatar, Tuttofy mengumpulkan persona, consent, video training, voice sample, dan knowledge base untuk direview sebelum aset AI dibuat.
 9. Untuk suara teacher, Tuttofy menggunakan Cartesia sebagai voice cloning dan TTS provider, lalu menyimpan referensi voice yang dapat dipakai oleh persona Tavus.
@@ -38,7 +38,7 @@ flowchart TD
   app --> r2[Cloudflare R2 assets]
   app --> resend[Resend email delivery]
   app --> redis[Upstash Redis cache dan throttling]
-  app --> stripe[Stripe payment flows]
+  app --> stripe[Stripe payment and Connect flows]
   app --> cartesia[Cartesia voice cloning dan TTS]
   app --> tavus[Tavus avatar sessions]
   tavus --> cartesia
@@ -81,7 +81,10 @@ sequenceDiagram
 - `Cartesia` digunakan untuk voice cloning dan text-to-speech teacher avatar. Voice Cartesia dipasang ke Tavus melalui konfigurasi TTS persona seperti `tts_engine: cartesia` dan `external_voice_id`.
 - `Upstash Redis` digunakan untuk kebutuhan pendukung aplikasi seperti caching, rate limiting, atau data koordinasi ringan.
 - `Cloudflare R2` menyimpan file dan object produk seperti materi pembelajaran atau aset yang dapat diunduh.
-- `Stripe` digunakan sebagai payment provider untuk alur pembayaran, billing, atau transaksi subscription saat fitur tersebut aktif.
+- `Stripe` digunakan sebagai payment provider untuk alur pembayaran, billing, transaksi subscription, dan fondasi wallet/payout teacher saat fitur tersebut aktif.
+- `Stripe Connect` digunakan untuk menghubungkan teacher dengan connected account, onboarding payout, balance, dan payout ke rekening teacher.
+- `Clerk` tidak memindahkan uang dan tidak menjadi source of truth untuk saldo wallet. Clerk hanya menghubungkan identitas teacher ke record internal yang menyimpan referensi Stripe.
+- Company Tuttofy berada di Singapore, sehingga availability payout lintas negara harus divalidasi terhadap eligibility Stripe Connect, cross-border payouts, negara teacher, negara payer, dan currency.
 - Akses admin internal berada di luar cakupan Tuttofy core web app karena sistem admin berada di aplikasi terpisah.
 - Voice sample, training video, consent, persona, dan knowledge base teacher harus melewati review manual sebelum Tuttofy membuat atau mengaktifkan aset ke Cartesia dan Tavus.
 - Setelah voice clone atau replica disetujui, perubahan audio/video harus dibuat sebagai versi baru atau re-submission, bukan mengubah aset aktif secara langsung.
@@ -111,6 +114,7 @@ sequenceDiagram
 - Jika voice identifier Cartesia berubah karena re-clone, persona Tavus yang memakai suara tersebut perlu diupdate agar memakai `external_voice_id` terbaru.
 - Jika R2 sedang tidak tersedia, aset pembelajaran yang diunggah atau diunduh dapat gagal diakses walaupun bagian lain dari aplikasi tetap berjalan.
 - Jika Stripe tidak tersedia, flow pembayaran atau subscription tidak dapat diselesaikan walaupun area produk lain mungkin tetap dapat diakses.
+- Jika Stripe Connect atau payout flow tidak tersedia untuk negara teacher tertentu, teacher wallet tetap dapat menampilkan status internal, tetapi payout harus ditahan atau direview manual sampai jalur payout valid.
 - Jika Upstash Redis mengalami degradasi, fitur yang bergantung pada cache atau throttling dapat berubah perilaku tanpa mengubah model identitas inti.
 
 ## Fitur Terkait
@@ -123,6 +127,7 @@ sequenceDiagram
 - Teacher personalization
 - Voice cloning
 - Payment or subscription
+- Teacher wallet
 - Avatar conversation session
 - Random conversation session
 
@@ -131,4 +136,5 @@ sequenceDiagram
 - Stack saat ini untuk Tuttofy core web adalah `Next.js`, `Clerk`, `Neon`, `Cloudflare R2`, `Resend`, `Upstash Redis`, `Stripe`, `Cartesia`, dan `Tavus`.
 - Tuttofy menggunakan UI auth kustom di Next.js meskipun lifecycle authentication dikelola oleh Clerk.
 - Tavus mendukung Cartesia pada layer TTS persona. Untuk custom/private voice, Tuttofy perlu menyimpan Cartesia API key di backend dan mengirim voice identifier sebagai `external_voice_id` saat membuat atau memperbarui persona Tavus.
+- Detail wallet dan payout teacher didokumentasikan di halaman `Teacher Wallet`.
 - Halaman ini sengaja menjelaskan tanggung jawab layanan pada level produk dan tidak membahas detail implementasi infrastruktur.

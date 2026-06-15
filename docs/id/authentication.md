@@ -88,7 +88,7 @@ sequenceDiagram
 - Onboarding baru dimulai setelah first verified sign-in berhasil.
 - Authentication hanya menetapkan siapa pengguna dan context mana yang sedang aktif, bukan menentukan learning path atau enrollment course.
 - Authentication untuk admin berada di luar cakupan flow ini karena sistem admin berada di aplikasi terpisah.
-- Perilaku auth untuk payment atau subscription berada di luar cakupan fase ini.
+- Detail payment atau subscription berada di luar cakupan halaman auth ini, tetapi fitur wallet/payout teacher memakai `clerk_user_id` sebagai penghubung identitas ke record wallet dan Stripe connected account.
 
 ## Data / Field
 
@@ -125,10 +125,11 @@ sequenceDiagram
 - User profile
 - Teacher profile
 - Join course
+- Teacher wallet
 - Tech Stack
 
 ## Catatan
 
 - Password-based local authentication tidak termasuk dalam cakupan Tuttofy core web saat ini.
 - Akun tutor, pembelajar, dan anggota family memakai entry point autentikasi yang sama, lalu bercabang belakangan melalui onboarding, membership context, status profile, atau izin akses.
-- Cakupan dokumentasi saat ini tidak mencakup login admin internal, social provider selain Google, atau flow payment dan subscription.
+- Cakupan dokumentasi auth saat ini tidak mencakup login admin internal, social provider selain Google, atau detail flow payment dan subscription.

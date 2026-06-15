@@ -22,7 +22,7 @@ This page explains the current high-level technology stack used by Tuttofy, the 
 3. After a user is recognized, Tuttofy reads or creates the corresponding internal profile and product data in Neon.
 4. If the user accesses learning materials or uploaded assets, Tuttofy uses Cloudflare R2 as object storage.
 5. If the product needs to send transactional emails or internal notifications such as a new teacher onboarding alert, Tuttofy uses Resend as the email sender.
-6. If the product requires payment or subscription transactions in its active phase, Tuttofy uses Stripe as the payment provider.
+6. If the product requires payments, subscriptions, teacher wallet, or teacher payouts, Tuttofy uses Stripe as the payment provider and Stripe Connect as the connected account foundation.
 7. If the product needs cache, throttling, or fast ephemeral coordination, Tuttofy uses Upstash Redis.
 8. After a teacher is approved and starts avatar setup, Tuttofy collects persona, consent, training video, voice sample, and knowledge base content for human review before creating AI assets.
 9. For the teacher's voice, Tuttofy uses Cartesia as the voice cloning and TTS provider, then stores the voice reference that can be attached to a Tavus persona.
@@ -38,7 +38,7 @@ flowchart TD
   app --> r2[Cloudflare R2 assets]
   app --> resend[Resend email delivery]
   app --> redis[Upstash Redis cache and throttling]
-  app --> stripe[Stripe payment flows]
+  app --> stripe[Stripe payment and Connect flows]
   app --> cartesia[Cartesia voice cloning and TTS]
   app --> tavus[Tavus avatar sessions]
   tavus --> cartesia
@@ -81,7 +81,10 @@ sequenceDiagram
 - `Cartesia` is used for teacher avatar voice cloning and text-to-speech. Cartesia voices are attached to Tavus through persona TTS configuration such as `tts_engine: cartesia` and `external_voice_id`.
 - `Upstash Redis` is reserved for app support needs such as caching, rate limiting, or lightweight coordination data.
 - `Cloudflare R2` stores product files and objects such as learning materials or downloadable assets.
-- `Stripe` is used as the payment provider for payment, billing, or subscription transaction flows when those features are active.
+- `Stripe` is used as the payment provider for payment, billing, subscription transaction flows, and the teacher wallet/payout foundation when those features are active.
+- `Stripe Connect` is used to connect teachers with connected accounts, payout onboarding, balances, and payouts to teacher bank accounts.
+- `Clerk` does not move money and is not the source of truth for wallet balances. Clerk only links teacher identity to the internal record that stores Stripe references.
+- Tuttofy's company is based in Singapore, so cross-border payout availability must be validated against Stripe Connect eligibility, cross-border payouts, teacher country, payer country, and currency.
 - Internal admin access is out of scope for the Tuttofy core web app because the admin system lives in a separate application.
 - Teacher voice samples, training videos, consent, persona, and knowledge base content must pass manual review before Tuttofy creates or activates assets in Cartesia and Tavus.
 - After a voice clone or replica is approved, audio/video changes should be handled as a new version or re-submission instead of mutating the active asset directly.
@@ -111,6 +114,7 @@ sequenceDiagram
 - If a Cartesia voice identifier changes after re-cloning, the Tavus persona using that voice must be updated to reference the latest `external_voice_id`.
 - If R2 is temporarily unavailable, uploaded or downloadable learning assets may fail even if the rest of the app remains accessible.
 - If Stripe is unavailable, payment or subscription flows cannot be completed even if other areas of the product remain accessible.
+- If Stripe Connect or the payout flow is unavailable for a teacher's country, teacher wallet can still show internal status, but payouts must be held or manually reviewed until a valid payout path exists.
 - If Upstash Redis is degraded, cache-backed or throttling-related features may behave differently without changing the core identity model.
 
 ## Related Features
@@ -123,6 +127,7 @@ sequenceDiagram
 - Teacher personalization
 - Voice cloning
 - Payment or subscription
+- Teacher wallet
 - Avatar conversation session
 - Random conversation session
 
@@ -131,4 +136,5 @@ sequenceDiagram
 - The current stack for Tuttofy core web is `Next.js`, `Clerk`, `Neon`, `Cloudflare R2`, `Resend`, `Upstash Redis`, `Stripe`, `Cartesia`, and `Tavus`.
 - Tuttofy uses custom auth UI in Next.js even though authentication lifecycle behavior is managed by Clerk.
 - Tavus supports Cartesia in the persona TTS layer. For custom/private voices, Tuttofy should keep the Cartesia API key on the backend and send the voice identifier as `external_voice_id` when creating or updating a Tavus persona.
+- Teacher wallet and payout details are documented in `Teacher Wallet`.
 - This page intentionally describes service responsibilities at a product level and avoids infrastructure implementation details.

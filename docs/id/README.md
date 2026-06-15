@@ -6,7 +6,7 @@ Tuttofy adalah platform tutor avatar AI online yang membantu guru, tutor, dan su
 
 Pada versi produk saat ini, Tuttofy menggunakan Tavus sebagai penyedia percakapan avatar. Tavus menjalankan pengalaman avatar secara langsung, sementara Tuttofy tetap mengelola identitas pengguna, pengaturan tutor, struktur pembelajaran, materi, dan alur belajar untuk siswa.
 
-Web app inti Tuttofy dibangun dengan Next.js. Clerk menangani autentikasi dan session, Neon menyimpan data aplikasi utama, Upstash Redis mendukung kebutuhan cache atau rate limiting, Cloudflare R2 digunakan untuk object storage seperti materi atau file pembelajaran, dan Stripe digunakan sebagai payment provider.
+Web app inti Tuttofy dibangun dengan Next.js. Clerk menangani autentikasi dan session, Neon menyimpan data aplikasi utama, Upstash Redis mendukung kebutuhan cache atau rate limiting, Cloudflare R2 digunakan untuk object storage seperti materi atau file pembelajaran, dan Stripe digunakan sebagai payment provider serta fondasi wallet/payout teacher melalui Stripe Connect.
 
 Portal atau sistem admin internal berada di aplikasi terpisah. Repositori dokumentasi ini berfokus pada perilaku produk untuk aplikasi inti Tuttofy yang digunakan tutor dan pembelajar.
 
@@ -175,6 +175,7 @@ Fondasi dokumentasi saat ini mengikuti konvensi berikut:
 - [Course Discovery and Join](./course-discovery-and-join.md)
 - [Course Learning Experience](./course-learning-experience.md)
 - [Teacher Personalization](./teacher-personalization.md)
+- [Teacher Wallet](./teacher-wallet.md)
 
 ## Rencana Dokumentasi Fitur
 
@@ -186,6 +187,7 @@ Fase pertama ini belum mendokumentasikan setiap fitur secara penuh. Area dokumen
 - User profile
 - Teacher profile
 - Teacher personalization
+- Teacher wallet
 - Course discovery
 - Create course
 - Create module step
@@ -193,8 +195,9 @@ Fase pertama ini belum mendokumentasikan setiap fitur secara penuh. Area dokumen
 - Student learning progress
 - Course free conversation
 - Avatar conversation session
+- Payment or subscription
 - Guardrails and knowledge scope
 - Download material
 - Admin management
 
-Dokumentasi payment atau subscription sengaja di luar cakupan saat ini dan hanya perlu ditambahkan setelah fiturnya aktif.
+Dokumentasi payment atau subscription penuh masih perlu ditambahkan setelah model bisnis final, tetapi fondasi wallet dan payout teacher mulai didokumentasikan di halaman `Teacher Wallet`.

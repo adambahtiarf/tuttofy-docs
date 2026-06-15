@@ -6,7 +6,7 @@ Tuttofy is an online AI avatar tutor platform that helps teachers, tutors, and s
 
 In the current product version, Tuttofy uses Tavus as the avatar conversation provider. Tavus runs the live avatar experience, while Tuttofy continues to manage user identity, tutor settings, learning structure, materials, and student learning flows.
 
-The core Tuttofy web app is built with Next.js. Clerk handles authentication and sessions, Neon stores the main application data, Upstash Redis supports caching or rate limiting needs, Cloudflare R2 is used for object storage such as learning materials or files, and Stripe is used as the payment provider.
+The core Tuttofy web app is built with Next.js. Clerk handles authentication and sessions, Neon stores the main application data, Upstash Redis supports caching or rate limiting needs, Cloudflare R2 is used for object storage such as learning materials or files, and Stripe is used as the payment provider and the foundation for teacher wallet/payout flows through Stripe Connect.
 
 The internal admin portal or system lives in a separate application. This documentation repository focuses on product behavior for the core Tuttofy app used by tutors and learners.
 
@@ -175,6 +175,7 @@ The current documentation foundation follows these conventions:
 - [Course Discovery and Join](./course-discovery-and-join.md)
 - [Course Learning Experience](./course-learning-experience.md)
 - [Teacher Personalization](./teacher-personalization.md)
+- [Teacher Wallet](./teacher-wallet.md)
 
 ## Feature Documentation Plan
 
@@ -186,6 +187,7 @@ This first phase does not fully document every feature yet. Planned feature docu
 - User profile
 - Teacher profile
 - Teacher personalization
+- Teacher wallet
 - Course discovery
 - Create course
 - Create module step
@@ -193,8 +195,9 @@ This first phase does not fully document every feature yet. Planned feature docu
 - Student learning progress
 - Course free conversation
 - Avatar conversation session
+- Payment or subscription
 - Guardrails and knowledge scope
 - Download material
 - Admin management
 
-Payment or subscription documentation is intentionally outside the current scope and only needs to be added after the feature is active.
+Full payment or subscription documentation still needs to be added after the business model is finalized, but the teacher wallet and payout foundation is now documented in `Teacher Wallet`.
